@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"  
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	                    http://www.springframework.org/schema/aop 
+	                    http://www.springframework.org/schema/aop/spring-aop.xsd 
+	                    
+                        http://www.springframework.org/schema/cache 
+                        http://www.springframework.org/schema/cache/spring-cache-3.1.xsd">
+
+    <!-- 开启缓存注解 -->
+    <context:annotation-config />
+    <!-- 当proxy-target-class为false时使用JDK动态代理,为true使用cglib -->
+    <aop:aspectj-autoproxy proxy-target-class="true" />
+    <context:component-scan base-package="com.wallaw.study.cache"/>
+    
+    <context:property-placeholder location="classpath*:*.properties"/>  
+    
+    <!--  本地redis的配置  >
+    <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="300" />  
+        <property name="maxTotal" value="300" />    
+        <property name="maxWaitMillis" value="1000" />  
+        <property name="testOnBorrow" value="true" />  
+    </bean>  
+    
+    <bean id="jedisConnectionFactory"
+        class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+        destroy-method="destroy">
+        <property name="hostName" value="localhost" />
+        <property name="port" value="6379" />
+        <property name="timeout" value="15000" />
+        <property name="database" value="0" />
+        <property name="password" value="" />
+        <property name="usePool" value="true" />
+        <property name="poolConfig" ref="poolConfig" /> 
+    </bean>
+ -->
+    <!-- redis template definition p表示对该bean里面的属性进行注入，格式为p:属性名=注入的对象 效果与在bean里面使用<property>标签一样 >
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+        p:connection-factory-ref="jedisConnectionFactory">
+        <property name="keySerializer">
+            <bean
+                class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+        </property>
+        <property name="hashKeySerializer">
+            <bean
+                class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+        </property>
+        <property name="valueSerializer">
+            <bean
+                class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
+        </property>
+        <property name="hashValueSerializer">
+            <bean
+                class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
+        </property>
+    </bean>  
+    -->
+  
+     
+     <!--  远程集群redis的配置开始 -->
+     <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig" />
+
+	<bean id="jedisCluster" class="redis.clients.jedis.JedisCluster">
+		<constructor-arg index="0">
+			<set>
+				<bean class="redis.clients.jedis.HostAndPort">
+					<constructor-arg index="0" value="${dev.host1}" />
+					<constructor-arg index="1" value="${dev.port1}" />
+				</bean>
+				<bean class="redis.clients.jedis.HostAndPort">
+					<constructor-arg index="0" value="${dev.host2}" />
+					<constructor-arg index="1" value="${dev.port2}" />
+				</bean>
+			</set>
+		</constructor-arg>
+		<constructor-arg index="1" value="5000" />
+		<constructor-arg index="2" value="500" />
+		<constructor-arg index="3" ref="jedisPoolConfig" />
+	</bean>
+        <!-- f远程集群redis配置结束 -->
+        
+    <!--  aop xml 配置实现  -->
+	<bean id="serviceAspect" class="com.wallaw.study.cache.aop.ConfigAspect"/>
+	<aop:config>
+		<aop:aspect id="cacheAspect" ref="serviceAspect">
+			<!-- 配置一个切入点,相当于@Pointcut -->
+			<aop:pointcut expression="execution(* com.wallaw.study.cache.dao.get*(..))" id="testPointcut"/>
+			<!-- 配置通知,相当于@Before、@Around、@After、@AfterReturn、@AfterThrowing -->
+			<aop:before pointcut-ref="testPointcut" method="before"/>
+			<aop:around pointcut-ref="testPointcut" method="around"/>
+			<aop:after pointcut-ref="testPointcut" method="after"/>
+			<aop:after-returning pointcut-ref="testPointcut" method="afterReturn"/>
+			<aop:after-throwing pointcut-ref="testPointcut" method="afterThrow" throwing="ex"/>
+		</aop:aspect>
+	</aop:config>
+    
+    
+    <!-- 数据库配置 -->  
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName">
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:mysql://localhost:3306/zzb_test?useUnicode=true&amp;characterEncoding=utf-8&amp;character_set_server=utf8
+			</value>
+		</property>
+		<property name="username">
+			<value>root</value>
+		</property>
+		<property name="password">
+			<value>root123</value>
+		</property>
+		<property name="initialSize">
+			<value>2</value>
+		</property>
+		<property name="minIdle">
+			<value>2</value>
+		</property>
+		<property name="maxActive">
+			<value>5</value>
+		</property>
+		<property name="maxIdle">
+			<value>3</value>
+		</property>
+		<property name="validationQuery">
+			<value>SELECT 1</value>
+		</property>
+		<property name="testOnBorrow">
+			<value>true</value>
+		</property>
+		<property name="testOnReturn">
+			<value>false</value>
+		</property>
+		<property name="testWhileIdle">
+			<value>true</value>
+		</property>
+		<!-- 5 mins to check one time -->
+		<property name="timeBetweenEvictionRunsMillis">
+			<value>300000</value>
+		</property>
+		<!-- 30 mins Idel, disable -->
+		<property name="minEvictableIdleTimeMillis">
+			<value>1800000</value>
+		</property>
+	</bean>
+
+
+	<bean id="demoService" class="com.wallaw.study.cache.service.impl.DemoServiceImpl" />
+	 
+    
+    
+    
+    <!-- =========================================spring cache start================================================= -->
+	<!-- 启动缓存注解功能 -->
+	<cache:annotation-driven cache-manager="cacheManager" proxy-target-class="true"/> 
+	<!-- spring自己的缓存管理器，这里定义了两个缓存位置名称 ，既注解中的value -->
+	<bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+		<property name="caches">
+			<set>
+				<bean
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+					p:name="default" />
+				<bean
+					class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+					p:name="userCache" />
+			</set>
+		</property>
+	</bean>
+
+</beans>

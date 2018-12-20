@@ -1,0 +1,184 @@
+package com.yunyao.cache.aop;
+
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.stereotype.Component;
+
+import com.alibaba.fastjson.JSON;
+import com.yunyao.cache.annotation.RedisCache;
+import com.yunyao.cache.annotation.RedisEvict;
+
+@Aspect
+@Component
+public class CopyOfRedisCacheAspect_bak {
+    public static final Logger infoLog = Logger.getLogger("RedisCacheAspect.class");
+
+    //@Autowired
+	private RedisTemplate redisTemplate;
+
+    /**
+     * 方法调用前，先查询缓存。如果存在缓存，则返回缓存数据，阻止方法调用;
+     * 如果没有缓存，则调用业务方法，然后将结果放到缓存中
+     * @param jp
+     * @return
+     * @throws Throwable
+     */
+    //@Around("execution(* com.yunyao.cache.dao.DemoDAO.get*(..))")
+    public Object cacheInMap(final ProceedingJoinPoint jp) throws Throwable {
+        // 得到类名、方法名和参数
+        String clazzName = jp.getTarget().getClass().getName();
+        String methodName = jp.getSignature().getName();
+        Object[] args = jp.getArgs();
+        
+        // 根据类名，方法名和参数生成key
+        String key = genKey(clazzName, methodName, args);
+        
+        // 得到被代理的方法
+        java.lang.reflect.Method me = ((MethodSignature) jp.getSignature()).getMethod();
+        RedisCache redisCache = me.getAnnotation(RedisCache.class);
+		Class redisCacheType = redisCache.type();
+        
+        // 检查redis中是否有缓存
+        String value = (String)redisTemplate.opsForHash().get(redisCacheType.getName(), key);
+        
+        // result是方法的最终返回结果
+        Object result = null;
+        if (null == value) {
+            infoLog.info("缓存未命中");
+
+            // 调用数据库查询方法
+            result = jp.proceed(args);
+            
+            String json = serialize(result);
+            redisTemplate.opsForHash().put(redisCacheType.getName(), key, json);
+        } else {
+            // 缓存命中
+            infoLog.info("缓存命中, value = {"+value+"}");
+            Class returnType = ((MethodSignature) jp.getSignature()).getReturnType();
+            result = deserialize(value, returnType);
+
+            infoLog.info("反序列化结果 = "+result);
+        }
+        
+		System.out.println("时间:"+redisCache.expireTime());
+        redisTemplate.expire(key, redisCache.expireTime(), TimeUnit.SECONDS);  //用此方法也可以存
+
+        return result;
+    }
+
+    //@Around("execution(* com.yunyao.cache.dao.DemoDAO.query*(..))")
+    public Object cacheWithTime(final ProceedingJoinPoint jp) throws Throwable {
+		ValueOperations<String, Object> valueOper = redisTemplate.opsForValue();
+		// 得到类名、方法名和参数
+		String clazzName = jp.getTarget().getClass().getName();
+		String methodName = jp.getSignature().getName();
+		Object[] args = jp.getArgs();
+		Class returnType = ((MethodSignature) jp.getSignature()).getReturnType();
+		
+		// 得到被代理的方法
+		java.lang.reflect.Method me = ((MethodSignature) jp.getSignature()).getMethod();
+		
+		RedisCache redisCache = me.getAnnotation(RedisCache.class);
+		//没有在方法上打注解标签的，不进行任何缓存操作
+		if(redisCache==null){
+			return jp.proceed();
+		}
+		Class redisCacheType = redisCache.type();
+		System.out.println("时间:"+redisCache.expireTime());
+		// 根据类名，方法名和参数生成key
+		String key = genKey(clazzName, methodName, args);
+		
+		Object value = valueOper.get(key); // 从缓存获取数据
+		if (value != null){
+			infoLog.info("set缓存命中！");
+			return deserialize(value.toString(), returnType); // 如果有数据,则直接返回
+		}
+			
+		value = jp.proceed(); // 跳过缓存,到后端查询数据
+
+		String json = serialize(value);
+		if (redisCache.expireTime() <= 0) { // 如果没有设置过期时间,则无限期缓存
+			valueOper.set(key, json);
+		} else { // 否则设置缓存时间
+			valueOper.set(key, json, redisCache.expireTime(), TimeUnit.SECONDS);
+		}
+		return json;
+    }
+    
+    /**
+     * 在方法调用前清除缓存，然后调用业务方法
+     * @param jp
+     * @return
+     * @throws Throwable
+     */
+    //@Around("execution(* com.yunyao.cache.dao.DemoDAO.update*(..))")
+    public Object evictCache(ProceedingJoinPoint jp) throws Throwable {
+
+    	String clazzName = jp.getTarget().getClass().getName();
+        String methodName = jp.getSignature().getName();
+        Object[] args = jp.getArgs();
+        
+        methodName = "queryAddressById";//address存储的key 包含方法名为queryAddressById
+        // 根据类名，方法名和参数生成key
+        String key = genKey(clazzName, methodName, args);
+        
+        // 得到被代理的方法
+        java.lang.reflect.Method me = ((MethodSignature) jp.getSignature()).getMethod();
+        RedisEvict cache = me.getAnnotation(RedisEvict.class);
+		Class cacheType = cache.type();
+        
+        // 更新对应缓存内容
+		String newValue = "defaultName";
+		if(args!=null&args.length>=2){
+			newValue = serialize(args[1]);
+		}
+        redisTemplate.opsForValue().set(key, newValue, 30, TimeUnit.SECONDS);
+
+        return jp.proceed(args);
+    }
+
+
+
+    /**
+     * 根据类名、方法名和参数生成key
+     * @param clazzName
+     * @param methodName
+     * @param args 方法参数
+     * @return
+     */
+    protected String genKey(String clazzName, String methodName, Object[] args) {
+        StringBuilder sb = new StringBuilder(clazzName);
+        sb.append(".");
+        sb.append(methodName);
+        sb.append(".");
+
+        if(args!=null&&args.length>0){
+          sb.append(args[0].toString());
+          sb.append(".");
+        }
+//        for (Object obj : args) {
+//            sb.append(obj.toString());
+//            sb.append(".");
+//        }
+
+        return sb.toString();
+    }
+
+    protected String serialize(Object target) {
+        return JSON.toJSONString(target);
+    }
+
+    @SuppressWarnings("unchecked")
+	protected Object deserialize(String jsonString, Class clazz) {
+        // 序列化结果是普通对象
+        return JSON.parseObject(jsonString, clazz);
+    }
+}
