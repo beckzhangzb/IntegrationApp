@@ -1,0 +1,14 @@
+package com.ali.work.mergefile.ThreadPoolFactory;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ComsumeThreadPoolFactory implements PoolFactory {
+    private ExecutorService executor;
+
+    @Override
+    public ExecutorService buildExecutePool(int size) {
+        executor = Executors.newFixedThreadPool(size);
+        return executor;
+    }
+}
