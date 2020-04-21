@@ -34,9 +34,7 @@ public class GeneratorMain {
         Generator generator = new Generator();
         //generator.generateByDatabase();    //自动搜索数据库中的所有表并生成文件,template为模板的根目录
         List<String> tableNames = new ArrayList<String>();
-        tableNames.add("xxx");
-        tableNames.add("xxssa");
-        tableNames.add("test");
+        tableNames.add("transfer_accout_record");
         generator.generateByDatabase(tableNames);
         System.out.println("生成成功：" + new Date());
         //打开文件夹
