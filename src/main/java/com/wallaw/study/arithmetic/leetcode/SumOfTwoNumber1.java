@@ -1,8 +1,8 @@
 package com.wallaw.study.arithmetic.leetcode;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import com.alibaba.fastjson.JSONObject;
+
+import java.util.*;
 
 /**
  * @author: beckzzb
@@ -29,7 +29,8 @@ public class SumOfTwoNumber1 {
         twoSum(nums, 13);
     }
 
-    public static void twoSum(int[] nums, int target) {
+    public static int[] twoSum(int[] nums, int target) {
+        List<Integer> array = new ArrayList();
         if (nums.length > 1) {
             Map<Integer, Integer> numMap = new HashMap<Integer, Integer>(nums.length);
             for (int i=0 ; i<nums.length; i++) {
@@ -47,7 +48,8 @@ public class SumOfTwoNumber1 {
                     } else {
                         int temp = value + (Integer) numMap.get(mapKey);
                         if (temp == target) {
-                            System.out.println("[" + key + ", " + mapKey + "]");
+                            array.add(key);
+                            array.add(mapKey);
                             numMap.remove(key);
                             numMap.remove(mapKey);
                             break;
@@ -57,5 +59,12 @@ public class SumOfTwoNumber1 {
                 numMap.remove(key);
             }
         }
+        int[] sums = new int[array.size()];
+        int i=0;
+        for (Integer value: array) {
+            sums[i++] = value;
+        }
+        System.out.println("result:" + JSONObject.toJSONString(sums));
+        return sums;
     }
 }

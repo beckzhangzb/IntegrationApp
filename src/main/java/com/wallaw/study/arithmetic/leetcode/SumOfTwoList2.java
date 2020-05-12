@@ -1,5 +1,7 @@
 package com.wallaw.study.arithmetic.leetcode;
 
+import com.alibaba.fastjson.JSONObject;
+
 /**
  * @author: zhangzb
  * @date: 2020/2/25 11:36
@@ -31,28 +33,34 @@ public class SumOfTwoList2 {
     }
 
     public static ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        Integer v1 = toPositiveOrder(l1);
-        Integer v2 = toPositiveOrder(l2);
+        Long v1 = toPositiveOrder(l1);
+        Long v2 = toPositiveOrder(l2);
 
-        int total = v1 + v2;
+        long total = v1 + v2;
 
         ListNode head = null;
         ListNode current = null;
-        while (total > 0) {
-            ListNode node = new ListNode(total % 10);
-            if (current == null) {
-                head = node;
-                current = node;
-            } else {
-                current.next = node;
-                current = current.next;
+        if (total == 0) {
+            head = new ListNode(0);
+            head.next = null;
+        } else {
+            while (total > 0) {
+                ListNode node = new ListNode((int) (total % 10));
+                if (current == null) {
+                    head = node;
+                    current = node;
+                } else {
+                    current.next = node;
+                    current = current.next;
+                }
+                total = total / 10;
             }
-            total = total / 10;
         }
+
         return head;
     }
 
-    public static Integer toPositiveOrder(ListNode node) {
+    public static Long toPositiveOrder(ListNode node) {
         StringBuffer sb = new StringBuffer();
 
         while (node != null) {
@@ -65,7 +73,7 @@ public class SumOfTwoList2 {
         }
 
         sb.reverse();
-        return Integer.parseInt(sb.toString());
+        return Long.parseLong(sb.toString());
     }
 
     public static ListNode createListNode(int[] array) {

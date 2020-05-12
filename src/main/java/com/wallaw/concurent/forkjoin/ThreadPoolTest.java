@@ -12,7 +12,7 @@ import java.util.concurrent.*;
  */
 public class ThreadPoolTest {
     public static void main(String[] args) throws InterruptedException {
-        ThreadFactory tf = new ThreadFactoryBuilder().
+        ThreadFactory threadFactory = new ThreadFactoryBuilder().
                 setNameFormat("demo-pool-%d").build();
 
         /**
@@ -20,12 +20,13 @@ public class ThreadPoolTest {
          */
         ExecutorService pool = new ThreadPoolExecutor(5, 10, 5L,
                 TimeUnit.SECONDS,
-                new LinkedBlockingDeque<Runnable>(20), tf,
+                new LinkedBlockingDeque<Runnable>(20),
+                threadFactory,
                 new ThreadPoolExecutor.AbortPolicy());
         /**
          * 线程数 Tnum
          */
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 40; i++) {
             pool.execute(new MyTask());
         }
 
