@@ -1,4 +1,4 @@
-package com.ali.work.ticketlock;
+package com.aa.work.ticketlock;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

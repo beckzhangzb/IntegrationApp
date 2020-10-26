@@ -1,8 +1,8 @@
-package com.ali.work.mergefile;
+package com.aa.work.mergefile;
 
-import com.ali.work.mergefile.ThreadPoolFactory.ComsumeThreadPoolFactory;
-import com.ali.work.mergefile.ThreadPoolFactory.PoolFactory;
-import com.ali.work.mergefile.ThreadPoolFactory.ProduceThreadPoolFactory;
+import com.aa.work.mergefile.ThreadPoolFactory.ComsumeThreadPoolFactory;
+import com.aa.work.mergefile.ThreadPoolFactory.PoolFactory;
+import com.aa.work.mergefile.ThreadPoolFactory.ProduceThreadPoolFactory;
 
 import java.io.File;
 import java.util.ArrayList;

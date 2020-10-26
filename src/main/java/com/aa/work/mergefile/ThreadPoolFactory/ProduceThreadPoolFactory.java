@@ -1,9 +1,9 @@
-package com.ali.work.mergefile.ThreadPoolFactory;
+package com.aa.work.mergefile.ThreadPoolFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ComsumeThreadPoolFactory implements PoolFactory {
+public class ProduceThreadPoolFactory implements PoolFactory {
     private ExecutorService executor;
 
     @Override

@@ -1,4 +1,4 @@
-package com.ali.work.singleton;
+package com.aa.work.singleton;
 
 import java.util.concurrent.ExecutorService;
 

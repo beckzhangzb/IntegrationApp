@@ -1,4 +1,4 @@
-package com.ali.work.mergefile;
+package com.aa.work.mergefile;
 
 import java.io.*;
 import java.util.Scanner;
