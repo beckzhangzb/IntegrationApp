@@ -1,4 +1,4 @@
-package com.wallaw.concurent.forkjoin;
+package com.wallaw.concurrent.muti;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 

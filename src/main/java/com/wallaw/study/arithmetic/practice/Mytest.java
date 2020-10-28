@@ -10,7 +10,7 @@ public class Mytest {
     public static void main(String[] args) {
         int i = 0;
         int arr[] = new int[]{0,0,0};
-        for(; i<=3; i++){
+        for(; i<3; i++){
             arr[i] = 0;
             System.out.println("hello world\n");
         }

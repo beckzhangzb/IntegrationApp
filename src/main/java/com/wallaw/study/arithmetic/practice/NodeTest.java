@@ -1,4 +1,4 @@
-package com.wallaw.study;
+package com.wallaw.study.arithmetic.practice;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,11 +7,10 @@ import java.util.List;
 /**
  * @author: zhangzb
  * @date: 2020/10/26 11:40
- * @description:  node 上存的value 是大于0 小于10的正整数
+ * @description:  两链表相加并满10进位，node 上存的value 是大于0 小于10的正整数
  */
 public class NodeTest {
     public static void main(String[] args) {
-
         //4>5>6
         Node node1 = new Node(4);
         Node n2 = new Node(5);
@@ -19,16 +18,14 @@ public class NodeTest {
         node1.setNext(n2);
         n2.setNext(n3);
 
-
-        //4>6>7>9
-        Node node2 = new Node(4);
+        //9>6>7>9
+        Node node2 = new Node(9);
         Node no2 = new Node(6);
         Node no3 = new Node(7);
         Node no4 = new Node(9);
         node2.setNext(no2);
         no2.setNext(no3);
         no3.setNext(no4);
-
 
         //结果5>1>3>5
         Node node3 = add(node1, node2);
@@ -67,11 +64,11 @@ public class NodeTest {
             mergeValueList(list2, list1, resultList);
         }
 
-        Node node3 = chageToNote(resultList);
+        Node node3 = chageToNode(resultList);
         return node3;
     }
 
-    private static Node chageToNote(List<Integer> resultList) {
+    private static Node chageToNode(List<Integer> resultList) {
         Node start = new Node();
         Node head = null;
         for (int i = resultList.size() - 1; i>=0 ; i--) {
@@ -110,7 +107,7 @@ public class NodeTest {
                 }
 
             } else {
-                if (list1.get(i) + flag >= 10) {
+                if ((current = list1.get(i) + flag) >= 10) {
                     current = current % 10;
                     resultList.add(current);
                     flag = 1;
@@ -119,6 +116,9 @@ public class NodeTest {
                     flag = 0;
                 }
             }
+        }
+        if (flag > 0) {
+            resultList.add(flag);
         }
     }
 

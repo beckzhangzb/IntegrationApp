@@ -1,4 +1,4 @@
-package com.wallaw.study;
+package com.wallaw.concurrent.muti;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,6 @@ public class MyBlockingQueue {
     int capacity;
     AtomicInteger size = new AtomicInteger(0);
     List list;
-    Object[] arr;
     Object addLock = new Object();
     Object tackLock = new Object();
     public MyBlockingQueue(int capacity) {
@@ -21,9 +20,6 @@ public class MyBlockingQueue {
         this.list = new ArrayList(capacity);
     }
 
-    void init(){
-        Object[] arr = new Object[capacity];
-    }
     public void put(Object o) throws InterruptedException {
         synchronized (addLock) {
             if (capacity == size.intValue()) {

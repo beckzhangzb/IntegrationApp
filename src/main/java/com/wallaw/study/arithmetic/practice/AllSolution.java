@@ -8,7 +8,7 @@ import java.util.Collections;
 /**
  * @author: zhangzb
  * @date: 2020/6/9 10:40
- * @description:
+ * @description: 求一个字符串的全排列
  */
 public class AllSolution {
 
@@ -16,9 +16,7 @@ public class AllSolution {
 
     public static void main(String[] agrs) {
         AllSolution allSolution = new AllSolution();
-
         ArrayList<String> result = allSolution.permutation("abcd");
-
         System.out.println(JSONObject.toJSONString(result));
     }
 
@@ -30,11 +28,13 @@ public class AllSolution {
 
         return res;
     }
+
     public void permutationHelper(char[] str, int i){
         if(i == str.length - 1){
             res.add(String.valueOf(str));
         }else{
             for(int j = i; j < str.length; j++){
+                // 重复字符就不用再多处理
                 if(j!=i && str[i] == str[j])
                     continue;
                 char temp = str[i];
@@ -50,6 +50,7 @@ public class AllSolution {
             }
         }
     }
+
     public void swap(char[] str, int i, int j) {
         char temp = str[i];
         str[i] = str[j];
