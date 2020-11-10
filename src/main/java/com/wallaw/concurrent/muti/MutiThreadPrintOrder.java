@@ -10,7 +10,7 @@ import java.util.concurrent.Semaphore;
  * @description: 多个线程分别依次打印
  */
 public class MutiThreadPrintOrder {
-    private static Semaphore firstSemaphore = new Semaphore(0);
+    private static Semaphore firstSemaphore = new Semaphore(1);
     // 此处信号量里面的permits必须要为0，就是一开始使线程阻塞
     private static Semaphore secordSemaphore = new Semaphore(0);
     private static Semaphore thirdSemaphore = new Semaphore(0);

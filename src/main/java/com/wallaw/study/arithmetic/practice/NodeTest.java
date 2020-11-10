@@ -27,7 +27,7 @@ public class NodeTest {
         no2.setNext(no3);
         no3.setNext(no4);
 
-        //结果5>1>3>5
+        //结果1>0>1>3>5
         Node node3 = add(node1, node2);
         myPrint(node3);
     }
