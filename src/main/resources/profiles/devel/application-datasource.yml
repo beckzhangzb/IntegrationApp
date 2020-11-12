@@ -1,0 +1,23 @@
+  spring:
+    datasource:
+      type: com.alibaba.druid.pool.DruidDataSource
+      druid:
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://10.28.16.82:3306/smzc_cold?autoReconnectForPools=true&useUnicode=true&characterEncoding=utf8&useSSL=false
+          username: root
+          password: smcdyanfa
+          initialSize: 2
+          minIdle: 5
+          maxActive: 20
+          maxWait: 60000
+          timeBetweenEvictionRunsMillis: 60000
+          minEvictableIdleTimeMillis: 300000
+          validationQuery: SELECT 1
+          testWhileIdle: true
+          testOnBorrow: false
+          testOnReturn: false
+          poolPreparedStatements: true
+          maxPoolPreparedStatementPerConnectionSize: 20
+          filters: stat,wall,slf4j
+          connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+          useGlobalDataSourceStat: true

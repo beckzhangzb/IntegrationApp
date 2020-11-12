@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: ${active.environment}
+  application:
+    name: smcx-datasync-smzc
+  jmx: 
+    enabled: false
+  # force设置为true，response输出才采用设置charset进行编码输出
+  http: 
+    encoding: 
+      enabled: true
+      charset: UTF-8
+      force: true

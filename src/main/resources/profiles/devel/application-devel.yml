@@ -1,0 +1,7 @@
+spring:
+   profiles: 
+     include: datasource,rocketMQ
+server: 
+    port: 9902
+    tomcat: 
+      uri-encoding: UTF-8

@@ -1,0 +1,2 @@
+rocketmq:
+  nameServer: rocketmq-master1.vvip-u.com:9876;rocketmq-master2.vvip-u.com:9876
